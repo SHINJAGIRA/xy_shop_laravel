@@ -5,24 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\product;
 use App\Models\ProductIn;
+use App\Models\ProductOut;
+
 class productController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    
     public function index()
     {
         return view('product.create');
     }
+    public function home()
+    {
+        $productOut=ProductOut::count();
+        $productIn=ProductIn::count();
+        $product=ProductIn::count();
+        
+        return view('product.home',compact('productOut','productIn','product'));
+    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create(Request $request)
+        public function create(Request $request)
     {
         product::create([
             'productname'=>$request->productname
@@ -30,39 +31,25 @@ class productController extends Controller
         return redirect('/read');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+   
     public function products()
     {
         $products=product::all();
         return view('product.read',compact('products'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
     public function showStockIn(Request $request,$id)
     {
         $product=product::find($id);
         return view('stock.insert',compact('product'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+   
     public function stockIn(Request $request)
     {
         $totalprice=$request->unitprice*$request->quantity;
+
         ProductIn::create([
             'product_id'=>$request->product_id,
             'datetime'=>$request->datetime,
@@ -70,30 +57,109 @@ class productController extends Controller
             'unitprice'=>$request->unitprice,
             'totalprice'=>$totalprice
         ]);
-        return redirect('/stocks-in');
+        return redirect('/stocks');
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+   
     public function stock()
     {
         $products=ProductIn::all();
-        return view('stock.all',compact('products'));
+        $stockout=ProductOut::all();
+        return view('stock.stockIn',compact('products','stockout'));
+    }
+    
+    
+
+    public function stockOut(Request $request,$id)
+    {
+        $product=ProductIn::find($id);
+        return view('stock.out',compact('product'));
+    }
+    public function stockOutIn(Request $request)
+    {
+        $productIn = ProductIn::findOrFail($request->product_in_id);
+    
+        if ($productIn->quantity < $request->quantity) {
+            return redirect()->back()->with('msg', 'Your quantity exceeds what you have in stock.');
+        }
+    
+        // Decrease quantity
+        $productIn->quantity -= $request->quantity;
+        //calculate again the totalprice
+        $productIn->totalprice = $productIn->unitprice * $productIn->quantity;
+        $productIn->save();
+        $totalprice = $request->unitprice * $request->quantity;
+        //save the data
+        ProductOut::create([
+            'product_in_id' => $request->product_in_id,
+            'datetime'      => $request->datetime,
+            'quantity'      => $request->quantity,
+            'unitprice'     => $request->unitprice,
+            'totalprice'    => $totalprice,
+        ]);
+    
+        return redirect('/stocks')->with('msg', 'Stock out recorded and product updated.');
+    }
+    //update on stockIn
+    public function updateStockIn(Request $request){
+        $productIn = ProductIn::find($request->product_id);
+        $totalprice = $request->unitprice * $request->quantity;
+        $productIn->update([
+            'datetime'      => $request->datetime,
+            'quantity'      => $request->quantity,
+            'unitprice'     => $request->unitprice,
+            'totalprice'    => $totalprice,
+        ]);
+        return redirect('/stocks')->with('msg', 'Product updated.');
+    }
+    //delete on stockIn
+    public function deleteStockIn($id){
+        $productIn = ProductIn::findOrFail($id);
+        $productIn->delete();
+        return redirect('/stocks')->with('msg', 'Product deleted.');
+    }
+    //update on stockOut
+    public function updateStockOut(Request $request){
+        $productOut = ProductOut::find($request->product_id);
+        $totalprice = $request->unitprice * $request->quantity;
+        $productOut->update([
+            'datetime'      => $request->datetime,
+            'quantity'      => $request->quantity,
+            'unitprice'     => $request->unitprice,
+            'totalprice'    => $totalprice,
+        ]);
+        return redirect('/stocks')->with('msg', 'Product updated.');
+    }
+    //delete on stockOut
+    public function deleteStockOut($id){
+        $productOut = ProductOut::findOrFail($id);
+        $productOut->delete();
+        return redirect('/stocks')->with('msg', 'Product deleted.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+    //update on product
+    public function updateProduct(Request $request, $id){
+        $product = Product::find($id);
+        $product->update($request->all());
+        return redirect('/read')->with('msg', 'Product updated.');
     }
-}
+    //delete on product
+    public function deleteProduct($id){
+        $product = Product::findOrFail($id);
+        $product->delete();
+        return redirect('/read')->with('msg', 'Product deleted.');
+    }
+    public function showUpdateProduct($id){
+        $product = Product::findOrFail($id);
+        return view('product.update', compact('product'));
+    }
+    public function showUpdateStockIn($id){
+        $product = ProductIn::findOrFail($id);
+        return view('stock.update', compact('product'));
+    }
+    public function showUpdateStockOut($id){
+        $product = ProductOut::findOrFail($id);
+        return view('stock.updateout', compact('product'));
+    }
+
+}    

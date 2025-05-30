@@ -29,8 +29,16 @@ Route::middleware('auth')->group(function(){
     Route::get('/stock-in/{id}',[ProductController::class,'showStockIn']);
     Route::post('/stockin-product',[ProductController::class,'stockin']);
     Route::get('/read',[ProductController::class,'products']);
-    Route::get('/', function () {
-    return view('welcome');
-});
-});
+    Route::get('/stock-out/{id}',[ProductController::class,'stockOut']);
+    Route::post('/stockout-product',[ProductController::class,'stockOutIn']);
+    Route::get('/stock-update/{id}',[ProductController::class,'showUpdateStockIn']);
+    Route::put('/stock-update-product',[ProductController::class,'updateStockIn']);
+    Route::delete('/stock-delete/{id}',[ProductController::class,'deleteStockIn']);
+    Route::get('/stock-updateout/{id}',[ProductController::class,'showUpdateStockOut']);
+    Route::put('/stock-updateout-product',[ProductController::class,'updateStockOut']);
+    Route::delete('/stock-deleteout/{id}',[ProductController::class,'deleteStockOut']);
+    Route::get('/', [ProductController::class,'home']);
+    Route::get('/update-product/{id}',[ProductController::class,'showUpdate']);
+    Route::put('/update-product/{id}',[ProductController::class,'updateProduct']);
+    });
 Route::post('/logout',[Controller::class,'logout']);

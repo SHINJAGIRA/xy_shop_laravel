@@ -9,7 +9,9 @@ class ProductOut extends Model
 {
     use HasFactory;
     protected $fillable=[
-        'dateTime',
+        'product_in_id',
+        'totalprice',
+        'datetime',
         'quantity',
         'unitprice',
     ];

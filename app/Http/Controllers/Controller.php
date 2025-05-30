@@ -24,7 +24,7 @@ class Controller extends BaseController
             'username'=>$request->username,
             'password'=>Hash::make($request->password),
         ]);
-        return redirect('/login');
+        return redirect('/signin');
     }
 
     public function showRegister(){
