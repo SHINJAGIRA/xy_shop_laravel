@@ -78,8 +78,11 @@
             <div class="form-group">
                 <input type="password" name="password" class="form-control" placeholder="Password" required>
             </div>
-            <button type="submit" class="btn">Register</button>
+            <button type="submit" class="btn">login</button>
         </form>
+       <div class="login-link">
+            No account? <a href="{{ url('/signup') }}">Register</a>
+        </div> 
         </div>
 </body>
 </html>

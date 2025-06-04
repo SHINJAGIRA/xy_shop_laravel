@@ -38,7 +38,8 @@ Route::middleware('auth')->group(function(){
     Route::put('/stock-updateout-product',[ProductController::class,'updateStockOut']);
     Route::delete('/stock-deleteout/{id}',[ProductController::class,'deleteStockOut']);
     Route::get('/', [ProductController::class,'home']);
-    Route::get('/update-product/{id}',[ProductController::class,'showUpdate']);
-    Route::put('/update-product/{id}',[ProductController::class,'updateProduct']);
+    Route::get('/update-product/{id}',[ProductController::class,'showUpdateProduct']);
+    Route::put('/edit-product/{id}',[ProductController::class,'updateProduct']);
+    Route::delete('/delete-product/{id}',[ProductController::class,'deleteProduct']);
     });
 Route::post('/logout',[Controller::class,'logout']);
